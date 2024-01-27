@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Net;
 using System.Security.Principal;
 using AutoUpdate_CLI.Classes.Utility;
+using AutoUpdate_CLI.Classes.Network;
 using WUApiLib;
+using AutoUpdate_CLI.Classes.Network.API;
 
 namespace AutoUpdate_CLI
 {
@@ -33,8 +36,30 @@ namespace AutoUpdate_CLI
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("SCPA AutoUpdate CLI");
             Console.WriteLine("(C) 2024 Larry Rowe (https://github.com/larryr1/AutoUpdate)");
-
             Console.WriteLine();
+
+            // Find config server
+            Console.WriteLine("Searching for AutoUpdate configuration server... (10 seconds max)");
+            IPEndPoint serverEndPoint = new DiscoveryClient().DiscoverServer(10);
+            if (serverEndPoint == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("A configuration server was not broadcasted. Proceeding with default configuration.");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+            }
+
+            // Create api configuration
+            ClientConfiguration apiConfig = new ClientConfiguration();
+            apiConfig.serverEndpoint = serverEndPoint;
+            apiConfig.clientIdentifier = System.Environment.MachineName;
+            apiConfig.clientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+
+            APIClient apiClient = new APIClient(apiConfig);
+
+
+            Console.ReadLine();
+            Environment.Exit(0);
+
             Console.WriteLine("Searching for available updates.");
 
             // Create the update session
@@ -43,7 +68,7 @@ namespace AutoUpdate_CLI
 
             // Create searcher, using Microsoft Update service.
             IUpdateSearcher searcher = session.CreateUpdateSearcher();
-            searcher.ServerSelection = WUApiLib.ServerSelection.ssOthers;
+            searcher.ServerSelection = WUApiLib.ServerSelection.ssDefault;
             searcher.ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d";
 
             ISearchResult result = searcher.Search("IsInstalled=0 and Type='Software' and IsHidden=0");
