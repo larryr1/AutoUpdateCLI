@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AutoUpdate_CLI.Classes.Network
@@ -18,10 +19,18 @@ namespace AutoUpdate_CLI.Classes.Network
         /// <returns>IPEndPoint if a valid broadcast is received. null if a valid broadcast is not received.</returns>
         public IPEndPoint DiscoverServer(int timeout)
         {
-            Task<IPEndPoint> discoverTask = Task.Run(Discover);
+            CancellationTokenSource cts = new CancellationTokenSource();
+
+            Task<IPEndPoint> discoverTask = Task.Run(Discover, cts.Token);
             Boolean successful = discoverTask.Wait(TimeSpan.FromSeconds(timeout));
 
-            if (successful) return discoverTask.Result; else return null;
+            if (!successful)
+            {
+                cts.Cancel();
+                return null;
+            }
+
+            return discoverTask.Result;
         }
 
         /// <summary>
