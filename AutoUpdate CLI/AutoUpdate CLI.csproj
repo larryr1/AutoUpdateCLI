@@ -4,20 +4,23 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <RootNamespace>AutoUpdate_CLI</RootNamespace>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>C:\Users\larry\Desktop\AU_CLI_PRI.key</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <COMReference Include="WUApiLib">
-      <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>0</VersionMinor>
       <VersionMajor>2</VersionMajor>
       <Guid>b596cc9f-56e5-419e-a622-e01bb457431e</Guid>
       <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
       <Isolated>false</Isolated>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
 </Project>

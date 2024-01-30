@@ -1,6 +1,10 @@
-﻿using System;
-using System.Security.Principal;
+﻿using AutoUpdate_CLI.Classes.Network;
+using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Utility;
+using System;
+using System.Net;
+using System.Security.Principal;
 using WUApiLib;
 
 namespace AutoUpdate_CLI
@@ -32,77 +36,45 @@ namespace AutoUpdate_CLI
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("SCPA AutoUpdate CLI");
-            Console.WriteLine("(C) 2024 Larry Rowe (https://github.com/larryr1/AutoUpdate)");
-
+            Console.WriteLine("Download or contribute: https://github.com/larryr1/AutoUpdate");
             Console.WriteLine();
+
+            // Find config server
+            Console.WriteLine("Searching for configuration server... (10 seconds max)");
+            IPEndPoint serverEndPoint = new DiscoveryClient().DiscoverServer(10);
+            if (serverEndPoint == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("A configuration server was not broadcasted. Proceeding with default configuration.");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+            }
+
+            // Create api configuration
+            ClientConfiguration apiConfig = new ClientConfiguration();
+            apiConfig.serverEndpoint = serverEndPoint;
+            apiConfig.clientIdentifier = Environment.MachineName;
+            apiConfig.clientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+
+            Console.ReadLine();
+            APIClient apiClient = new APIClient(apiConfig);
+
             Console.WriteLine("Searching for available updates.");
 
             // Create the update session
             UpdateSession session = new UpdateSession();
             session.ClientApplicationID = "com.github.larryr1.AutoUpdate";
 
-            // Create searcher, using Microsoft Update service.
-            IUpdateSearcher searcher = session.CreateUpdateSearcher();
-            searcher.ServerSelection = WUApiLib.ServerSelection.ssOthers;
-            searcher.ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d";
-
-            ISearchResult result = searcher.Search("IsInstalled=0 and Type='Software' and IsHidden=0");
-
-            Console.WriteLine("Found " + result.Updates.Count + " updates.");
-
+            // Create searcher.
+            SearchManager searchManager = new SearchManager();
             UpdateCollection downloadTarget = new UpdateCollection();
             UpdateCollection installTarget = new UpdateCollection();
-            bool exclusiveFlag = false;
-            for (int i = 0; i < result.Updates.Count; i++)
-            {
-                IUpdate update = result.Updates[i];
-                Console.WriteLine("Found update: " + update.Title);
-                if (!update.EulaAccepted)
-                {
-                    update.AcceptEula();
-                    Console.WriteLine("Accepted the update's EULA.");
-                }
-
-                if (update.IsDownloaded)
-                {
-                    Console.WriteLine("This update is already download.");
-                } else
-                {
-                    downloadTarget.Add(update);
-                    Console.WriteLine("Added update to download target.");
-                }
-
-                if (update.IsInstalled)
-                {
-                    Console.WriteLine("This update is already installed.");
-                }
-                else if (!exclusiveFlag && update.InstallationBehavior.Impact == InstallationImpact.iiRequiresExclusiveHandling)
-                {
-                    Console.WriteLine("This update requires exclusive handling. No others will be installed.");
-                    exclusiveFlag = true;
-                }
-                else if (!exclusiveFlag)
-                {
-                    installTarget.Add(update);
-                    Console.WriteLine("Added update to install target.");
-                }
-            }
+            searchManager.Search(session, out downloadTarget, out installTarget);
 
             
             if (downloadTarget.Count > 0)
             {
-                System.Threading.Thread.Sleep(1000);
-                Console.WriteLine("Starting downloader...");
-                UpdateDownloader downloader = session.CreateUpdateDownloader();
-                DownloadProgressDisplay progressDisplay = new DownloadProgressDisplay();
-                downloader.Updates = downloadTarget;
-                IDownloadJob job = downloader.BeginDownload(progressDisplay, progressDisplay, null);
-
-                // Do nothing and wait for the job to complete
-                while (!job.IsCompleted) { }
-
-                Console.WriteLine("Cleaning up after download process...");
-                job.CleanUp();
+                DownloadManager downloadManager = new DownloadManager();
+                downloadManager.Download(session, downloadTarget);
             }
             else
             {
@@ -111,35 +83,10 @@ namespace AutoUpdate_CLI
 
             if (installTarget.Count > 0)
             {
-                System.Threading.Thread.Sleep(1000);
-                Console.WriteLine("Starting installer...");
-                IUpdateInstaller installer = session.CreateUpdateInstaller();
-                installer.Updates = installTarget;
-                InstallProgressDisplay progressDisplay = new InstallProgressDisplay();
-                IInstallationJob job = installer.BeginInstall(progressDisplay, progressDisplay, null);
-
-                // Do nothing and wait for the job to complete
-                while (!job.IsCompleted) { }
-
-                Console.Clear();
-                Console.WriteLine("Cleaning up after download process...");
-                job.CleanUp();
-
-                // Analyze for unfinished updates
-                for (int i = 0; i < job.Updates.Count; i++)
-                {
-                    IUpdate update = job.Updates[i];
-                    IUpdateInstallationResult updateResult = job.GetProgress().GetUpdateResult(i);
-                    if (updateResult.HResult == -2145116147)
-                    {
-                        Console.WriteLine("An update needs additional downloaded content. Rerun the program.");
-                    }
-                    if (updateResult.RebootRequired)
-                    {
-                        Console.WriteLine("The system needs a reboot.");
-                    }
-                }
-            } else
+                InstallManager installManager = new InstallManager();
+                installManager.Install(session, installTarget);
+            }
+            else
             {
                 Console.WriteLine("There are no updates to install.");
             }
@@ -147,7 +94,6 @@ namespace AutoUpdate_CLI
             Console.WriteLine("Done! Press enter to exit.");
             Console.ReadLine();
             PreventSleep.AllowSleep();
-
         }
     }
 }
