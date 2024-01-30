@@ -1,11 +1,7 @@
-﻿using AutoUpdate_CLI.Classes.Utility;
+﻿using AutoUpdate_CLI.Classes.Update.Display;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WUApiLib;
-using static System.Collections.Specialized.BitVector32;
 
 namespace AutoUpdate_CLI.Classes.Update
 {
@@ -13,16 +9,47 @@ namespace AutoUpdate_CLI.Classes.Update
     {
         public void Download(UpdateSession session, UpdateCollection downloadTarget)
         {
-            UpdateDownloader downloader = session.CreateUpdateDownloader();
+            // Know all downloaders
+            List<UpdateDownloader> downloaders = new List<UpdateDownloader>();
+            List<IDownloadJob> jobs = new List<IDownloadJob>();
+
             DownloadProgressDisplay progressDisplay = new DownloadProgressDisplay();
-            downloader.Updates = downloadTarget;
-            IDownloadJob job = downloader.BeginDownload(progressDisplay, progressDisplay, null);
 
-            // Do nothing and wait for the job to complete
-            while (!job.IsCompleted) { }
+            // Create a new downloader for each update
+            for (int i = 0; i < downloadTarget.Count; i++)
+            {
+                IUpdate currentUpdate = downloadTarget[i];
+                UpdateDownloader thisDownloader = session.CreateUpdateDownloader();
+                thisDownloader.Updates = new UpdateCollection() { downloadTarget[i] };
+                downloaders.Add(thisDownloader);
+                
+            }
 
+            // Start each job and maintain a reference to it
+            downloaders.ForEach(downloader =>
+            {
+                jobs.Add(downloader.BeginDownload(progressDisplay, progressDisplay, null));
+            });
+
+            // Wait until all jobs are completed.
+            bool allCompleted = false;
+            while (!allCompleted)
+            {
+                int numCompleted = 0;
+                jobs.ForEach(job =>
+                {
+                    if (job.IsCompleted) numCompleted++;
+                });
+
+                allCompleted = (numCompleted == jobs.Count);
+            }
+
+            // Clean up all jobs
             Console.WriteLine("Cleaning up after download process...");
-            job.CleanUp();
+            jobs.ForEach((job) =>
+            {
+                job.CleanUp();
+            });
         }
     }
 }

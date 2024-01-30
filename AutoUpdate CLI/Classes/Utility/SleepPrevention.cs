@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
 
 namespace AutoUpdate_CLI.Classes.Utility
 {
-    internal class PreventSleep
+    internal class SleepPrevention
     {
         private static System.Timers.Timer _timer;
 
@@ -31,7 +32,7 @@ namespace AutoUpdate_CLI.Classes.Utility
             _timer.AutoReset = true;
             _timer.Enabled = true;
 
-            SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+            KeepAwake();
         }
 
         public static void AllowSleep()
@@ -41,7 +42,13 @@ namespace AutoUpdate_CLI.Classes.Utility
 
         private static void TimerTriggered(Object source, ElapsedEventArgs e)
         {
+            KeepAwake();
+        }
+
+        private static void KeepAwake()
+        {
             SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+            Debug.WriteLine("Thread execution state set.");
         }
     }
 }

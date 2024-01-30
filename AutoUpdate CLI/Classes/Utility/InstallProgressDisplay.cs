@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoUpdate_CLI.Classes.Utility.Progress;
+using System;
 using WUApiLib;
 
 namespace AutoUpdate_CLI.Classes.Utility
@@ -22,9 +23,9 @@ namespace AutoUpdate_CLI.Classes.Utility
 
 
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Update Install Progress: " + StaticProgressBar.Generate(updatePercentComplete, 20, '|'));
+            Console.WriteLine("Update Install Progress: " + ProgressTools.GenerateProgressBar(updatePercentComplete, 20, '|'));
             Console.WriteLine();
-            Console.WriteLine("Job Download Progress: " + StaticProgressBar.Generate(jobPercentComplete, 20, '|'));
+            Console.WriteLine("Job Download Progress: " + ProgressTools.GenerateProgressBar(jobPercentComplete, 20, '|'));
         }
 
         void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
