@@ -4,7 +4,10 @@ using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Update.Display;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Principal;
 using WUApiLib;
 
@@ -12,8 +15,11 @@ namespace AutoUpdate_CLI
 {
     internal class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.AssemblyResolve += Classes.Assembly.HandleOnResolveAssembly.OnResolveAssembly;
+
             // Ensure Adminstrator
             bool isElevated;
             using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
