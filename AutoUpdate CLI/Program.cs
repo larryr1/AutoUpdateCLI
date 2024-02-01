@@ -1,5 +1,6 @@
 ﻿using AutoUpdate_CLI.Classes.Network;
 using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
 using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
@@ -11,6 +12,7 @@ namespace AutoUpdate_CLI
 {
     internal class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             // Ensure Adminstrator
@@ -19,6 +21,7 @@ namespace AutoUpdate_CLI
             {
                 WindowsPrincipal principal = new WindowsPrincipal(identity);
                 isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(principal));
             }
 
             if (!isElevated)
@@ -32,7 +35,7 @@ namespace AutoUpdate_CLI
             }
 
             // Setup
-            PreventSleep.DisableSleep();
+            SleepPrevention.DisableSleep();
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("SCPA AutoUpdate CLI");
@@ -48,14 +51,13 @@ namespace AutoUpdate_CLI
                 Console.WriteLine("A configuration server was not broadcasted. Proceeding with default configuration.");
                 Console.ForegroundColor = ConsoleColor.Cyan;
             }
-
+             
             // Create api configuration
             ClientConfiguration apiConfig = new ClientConfiguration();
             apiConfig.serverEndpoint = serverEndPoint;
             apiConfig.clientIdentifier = Environment.MachineName;
             apiConfig.clientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
 
-            Console.ReadLine();
             APIClient apiClient = new APIClient(apiConfig);
 
             Console.WriteLine("Searching for available updates.");
@@ -79,6 +81,7 @@ namespace AutoUpdate_CLI
             else
             {
                 Console.WriteLine("There are no updates to download.");
+                System.Threading.Thread.Sleep(3000);
             }
 
             if (installTarget.Count > 0)
@@ -89,11 +92,12 @@ namespace AutoUpdate_CLI
             else
             {
                 Console.WriteLine("There are no updates to install.");
+                System.Threading.Thread.Sleep(3000);
             }
 
             Console.WriteLine("Done! Press enter to exit.");
             Console.ReadLine();
-            PreventSleep.AllowSleep();
+            SleepPrevention.AllowSleep();
         }
     }
 }
