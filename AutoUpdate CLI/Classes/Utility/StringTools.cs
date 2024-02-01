@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AutoUpdate_CLI.Classes.Utility
+﻿namespace AutoUpdate_CLI.Classes.Utility
 {
     internal class StringTools
     {

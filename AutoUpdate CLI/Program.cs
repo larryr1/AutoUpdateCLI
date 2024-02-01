@@ -1,6 +1,5 @@
 ﻿using AutoUpdate_CLI.Classes.Network;
 using AutoUpdate_CLI.Classes.Network.API;
-using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
 using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
@@ -51,20 +50,24 @@ namespace AutoUpdate_CLI
                 Console.WriteLine("A configuration server was not broadcasted. Proceeding with default configuration.");
                 Console.ForegroundColor = ConsoleColor.Cyan;
             }
-             
+
             // Create api configuration
-            ClientConfiguration apiConfig = new ClientConfiguration();
-            apiConfig.serverEndpoint = serverEndPoint;
-            apiConfig.clientIdentifier = Environment.MachineName;
-            apiConfig.clientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            ClientConfiguration apiConfig = new ClientConfiguration
+            {
+                ServerEndpoint = serverEndPoint,
+                ClientIdentifier = Environment.MachineName,
+                ClientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName
+            };
 
             APIClient apiClient = new APIClient(apiConfig);
 
             Console.WriteLine("Searching for available updates.");
 
             // Create the update session
-            UpdateSession session = new UpdateSession();
-            session.ClientApplicationID = "com.github.larryr1.AutoUpdate";
+            UpdateSession session = new UpdateSession
+            {
+                ClientApplicationID = "com.github.larryr1.AutoUpdate"
+            };
 
             // Create searcher.
             SearchManager searchManager = new SearchManager();

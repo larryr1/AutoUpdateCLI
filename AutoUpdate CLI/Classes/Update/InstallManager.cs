@@ -1,9 +1,5 @@
 ﻿using AutoUpdate_CLI.Classes.Utility;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WUApiLib;
 
 namespace AutoUpdate_CLI.Classes.Update
@@ -29,7 +25,6 @@ namespace AutoUpdate_CLI.Classes.Update
             // Analyze for unfinished updates
             for (int i = 0; i < job.Updates.Count; i++)
             {
-                IUpdate update = job.Updates[i];
                 IUpdateInstallationResult updateResult = job.GetProgress().GetUpdateResult(i);
                 if (updateResult.HResult == -2145116147)
                 {

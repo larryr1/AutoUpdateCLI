@@ -29,7 +29,6 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
         {
             // Get key and existing values
             RegistryKey ak = GetApplicationKey();
-            string[] valueNames = ak.GetValueNames();
 
             // Set required values
             EnsureValueExists(ak, "PostUpdateCheck", 0, RegistryValueKind.DWord);
