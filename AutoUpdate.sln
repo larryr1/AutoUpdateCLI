@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoUpdate CLI", "AutoUpdate CLI\AutoUpdate CLI.csproj", "{A56628D6-2A9A-4EFD-97B1-5EAAABF54592}"
 EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "AutoUpdate_CLI_Server", "AutoUpdate_CLI_Server\AutoUpdate_CLI_Server.njsproj", "{FD24BF37-10F2-444D-B184-D3EB576E75C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{A56628D6-2A9A-4EFD-97B1-5EAAABF54592}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A56628D6-2A9A-4EFD-97B1-5EAAABF54592}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A56628D6-2A9A-4EFD-97B1-5EAAABF54592}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD24BF37-10F2-444D-B184-D3EB576E75C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD24BF37-10F2-444D-B184-D3EB576E75C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD24BF37-10F2-444D-B184-D3EB576E75C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD24BF37-10F2-444D-B184-D3EB576E75C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
