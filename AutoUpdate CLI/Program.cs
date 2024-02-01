@@ -1,13 +1,10 @@
 ﻿using AutoUpdate_CLI.Classes.Network;
 using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
 using AutoUpdate_CLI.Classes.Update;
-using AutoUpdate_CLI.Classes.Update.Display;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Security.Principal;
 using WUApiLib;
 
@@ -18,14 +15,13 @@ namespace AutoUpdate_CLI
         [STAThread]
         static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += Classes.Assembly.HandleOnResolveAssembly.OnResolveAssembly;
-
             // Ensure Adminstrator
             bool isElevated;
             using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
             {
                 WindowsPrincipal principal = new WindowsPrincipal(identity);
                 isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(principal));
             }
 
             if (!isElevated)
@@ -55,7 +51,7 @@ namespace AutoUpdate_CLI
                 Console.WriteLine("A configuration server was not broadcasted. Proceeding with default configuration.");
                 Console.ForegroundColor = ConsoleColor.Cyan;
             }
-
+             
             // Create api configuration
             ClientConfiguration apiConfig = new ClientConfiguration();
             apiConfig.serverEndpoint = serverEndPoint;
