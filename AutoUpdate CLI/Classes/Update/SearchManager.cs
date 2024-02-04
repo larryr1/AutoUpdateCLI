@@ -8,10 +8,9 @@ namespace AutoUpdate_CLI.Classes.Update
         public void Search(UpdateSession session, out UpdateCollection outDownloadTarget, out UpdateCollection outInstallTarget)
         {
             IUpdateSearcher searcher = session.CreateUpdateSearcher();
-            searcher.ServerSelection = WUApiLib.ServerSelection.ssOthers;
-            searcher.ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d";
+            searcher.ServerSelection = ServerSelection.ssDefault;
 
-            ISearchResult result = searcher.Search("IsInstalled=0 and Type='Software' and IsHidden=0");
+            ISearchResult result = searcher.Search("IsInstalled=0 and IsHidden=0");
 
             Console.WriteLine("Found " + result.Updates.Count + " updates.");
 

@@ -22,7 +22,6 @@ namespace AutoUpdate_CLI.Classes.Update
                 UpdateDownloader thisDownloader = session.CreateUpdateDownloader();
                 thisDownloader.Updates = new UpdateCollection() { downloadTarget[i] };
                 downloaders.Add(thisDownloader);
-                
             }
 
             // Start each job and maintain a reference to it
