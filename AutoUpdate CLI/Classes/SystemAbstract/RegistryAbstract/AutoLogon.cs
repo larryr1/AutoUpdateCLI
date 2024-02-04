@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System;
 
 namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
 {
@@ -8,12 +9,28 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
     internal class AutoLogon
     {
         /// <summary>
-        /// Configures Winlogon to log in the specified user automatically.
+        /// Configures Winlogon to log in the specified user on the specified domain automatically.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="domain"></param>
+        /// <param name="isLocalAccount"></param>
         public static void Enable(string username, string password, string domain)
+        {
+            _enable(username, password, domain);
+        }
+        
+        /// <summary>
+        /// Configures Winlogon to log in the specified *local* user account automatically.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        public static void Enable(string username, string password)
+        {
+            _enable(username, password, Environment.MachineName);
+        }
+
+        public static void _enable(string username, string password, string domain)
         {
             // Set the proper keys for Winlogon to interpret.
             RegistryKey alk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
