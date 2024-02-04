@@ -43,7 +43,7 @@ namespace AutoUpdate_CLI.Classes.Update
                 }
                 else if (!exclusiveFlag && update.InstallationBehavior.Impact == InstallationImpact.iiRequiresExclusiveHandling)
                 {
-                    Console.WriteLine("This update requires exclusive handling. No others will be installed. The machine will reboot and rerun the program.");
+                    Console.WriteLine("This update requires exclusive handling. No others will be installed. The machine will reboot and continue update installation.");
                     System.Threading.Thread.Sleep(5000);
                     exclusiveFlag = true;
                 }
