@@ -14,7 +14,6 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="domain"></param>
-        /// <param name="isLocalAccount"></param>
         public static void Enable(string username, string password, string domain)
         {
             _enable(username, password, domain);
@@ -30,7 +29,7 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
             _enable(username, password, Environment.MachineName);
         }
 
-        public static void _enable(string username, string password, string domain)
+        private static void _enable(string username, string password, string domain)
         {
             // Set the proper keys for Winlogon to interpret.
             RegistryKey alk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
@@ -51,8 +50,10 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
             // Emulates the default Winlogon behavior of deleting or modifying certain values when AutoLogon is disabled.
             RegistryKey alk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
             alk.SetValue("AutoAdminLogon", "0", RegistryValueKind.String);
-            alk.DeleteValue("AutoLogonCount");
-            alk.DeleteValue("DefaultPassword");
+
+            if (alk.GetValue("AutoLogonCount") != null) alk.DeleteValue("AutoLogonCount"); else Console.WriteLine("WARN: AutoLogonCount registry key is missing and can not be deleted.");
+            if (alk.GetValue("DefaultPassword") != null) alk.DeleteValue("DefaultPassword"); else Console.WriteLine("WARN: DefaultPassword registry key is missing and can not be deleted.");
+            
             alk.Close();
         }
     }

@@ -1,5 +1,7 @@
 ﻿using AutoUpdate_CLI.Classes.Network;
 using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.SystemAbstract;
+using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
 using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
@@ -9,10 +11,10 @@ using WUApiLib;
 
 namespace AutoUpdate_CLI
 {
-    internal class Program
+    public class Program
     {
         [STAThread]
-        static void Main(string[] args)
+        public static void Execute(string[] args)
         {
             // Ensure Adminstrator
             bool isElevated;
@@ -20,7 +22,6 @@ namespace AutoUpdate_CLI
             {
                 WindowsPrincipal principal = new WindowsPrincipal(identity);
                 isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
-                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(principal));
             }
 
             if (!isElevated)
@@ -33,6 +34,10 @@ namespace AutoUpdate_CLI
                 Environment.Exit(0);
             }
 
+            // Disable AutoLogon and restore Legal Notice ASAP incase something goes wrong.
+            AutoLogon.Disable();
+            LegalNotice.Enable();
+
             // Setup
             SleepPrevention.DisableSleep();
 
@@ -42,7 +47,7 @@ namespace AutoUpdate_CLI
             Console.WriteLine();
 
             // Find config server
-            Console.WriteLine("Searching for configuration server... (10 seconds max)");
+            Console.WriteLine("Searching for configuration server... (timeout after 10 seconds)");
             IPEndPoint serverEndPoint = new DiscoveryClient().DiscoverServer(10);
             if (serverEndPoint == null)
             {
@@ -96,6 +101,27 @@ namespace AutoUpdate_CLI
             {
                 Console.WriteLine("There are no updates to install.");
                 System.Threading.Thread.Sleep(3000);
+            }
+
+            if (PostUpdateCheck.GetChecked())
+            {
+                Console.WriteLine("Cycle finished. Deleting registry keys...");
+                AutoLogon.Disable();
+                LegalNotice.Enable();
+                RegistryController.DeleteApplicationKey();
+                Console.WriteLine("Updates finished. Shutting down system.");
+                Power.Shutdown("Updates are finished. The system will shut down in 10 seconds.");
+                System.Threading.Thread.Sleep(120000);
+
+            } else
+            {
+                PostUpdateCheck.SetChecked();
+                AutoLogon.Enable("user", "user");
+                LegalNotice.Disable();
+                AutoRun.SetExecutableRunOnceKey();
+                Console.WriteLine("Restarting the system for the post-update check.");
+                Power.Restart("The machine is restarting in 10 seconds to complete updates.");
+                System.Threading.Thread.Sleep(120000);
             }
 
             Console.WriteLine("Done! Press enter to exit.");

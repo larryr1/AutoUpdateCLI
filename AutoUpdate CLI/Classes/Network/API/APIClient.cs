@@ -11,6 +11,13 @@ namespace AutoUpdate_CLI.Classes.Network.API
         private readonly ClientConfiguration configuration;
 #pragma warning restore IDE0052 // Remove unread private members
 
+        internal class REPORT_URLS
+        {
+            public static string REGISTER = "/api/client/register";
+            public static string STATUS_UPDATE = "/api/client/update_phase";
+            public static string NOTIFY_ = "/api/client/machine_state";
+        }
+
         public APIClient(ClientConfiguration configuration)
         {
             this.configuration = configuration;

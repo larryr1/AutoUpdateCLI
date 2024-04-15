@@ -6,7 +6,7 @@ namespace AutoUpdate_CLI.Classes.Network.API
     {
         private IPEndPoint _serverEndPoint;
         private string _clientIdentifier;
-        private string _clientDomain;
+        private string _clientDomain;       
 
         public IPEndPoint ServerEndpoint
         {

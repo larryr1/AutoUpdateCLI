@@ -1,4 +1,7 @@
-﻿using AutoUpdate_CLI.Classes.Utility;
+﻿using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.SystemAbstract;
+using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
+using AutoUpdate_CLI.Classes.Update.Display;
 using System;
 using WUApiLib;
 
@@ -32,7 +35,12 @@ namespace AutoUpdate_CLI.Classes.Update
                 }
                 if (updateResult.RebootRequired)
                 {
-                    Console.WriteLine("The system needs a reboot.");
+                    Console.WriteLine("The system needs a reboot. Configuring autologon.");
+                    AutoLogon.Enable("user", "user");
+                    LegalNotice.Disable();
+                    AutoRun.SetExecutableRunOnceKey();
+                    PostUpdateCheck.SetUnchecked();
+                    Power.Restart("The system is restarting in 10 seconds to apply newly-installed updates.");
                 }
             }
         }

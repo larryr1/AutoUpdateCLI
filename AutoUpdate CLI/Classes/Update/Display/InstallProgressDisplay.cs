@@ -1,8 +1,9 @@
-﻿using AutoUpdate_CLI.Classes.Utility.Progress;
+﻿using AutoUpdate_CLI.Classes.Utility;
+using AutoUpdate_CLI.Classes.Utility.Progress;
 using System;
 using WUApiLib;
 
-namespace AutoUpdate_CLI.Classes.Utility
+namespace AutoUpdate_CLI.Classes.Update.Display
 {
     internal class InstallProgressDisplay : IInstallationProgressChangedCallback, IInstallationCompletedCallback
     {
@@ -31,6 +32,14 @@ namespace AutoUpdate_CLI.Classes.Utility
         void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
         {
             Console.WriteLine("Installation completed.");
+        }
+
+        private void ShowProgress(IInstallationJob job)
+        {
+            IInstallationProgress progress = job.GetProgress();
+            Console.WriteLine("--[ Installation Job ]---------------------------------------------");
+            ConsoleTools.WritePair("Update", StringTools.TruncateString(job.Updates[0].Title, 40));
+            ConsoleTools.WritePair("Percent Complete", progress.PercentComplete.ToString() + "%");
         }
     }
 }
