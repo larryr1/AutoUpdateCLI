@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WUApiLib;
-using static System.Collections.Specialized.BitVector32;
 
 namespace AutoUpdate_CLI.Classes.Update
 {
@@ -13,10 +8,9 @@ namespace AutoUpdate_CLI.Classes.Update
         public void Search(UpdateSession session, out UpdateCollection outDownloadTarget, out UpdateCollection outInstallTarget)
         {
             IUpdateSearcher searcher = session.CreateUpdateSearcher();
-            searcher.ServerSelection = WUApiLib.ServerSelection.ssOthers;
-            searcher.ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d";
+            searcher.ServerSelection = ServerSelection.ssDefault;
 
-            ISearchResult result = searcher.Search("IsInstalled=0 and Type='Software' and IsHidden=0");
+            ISearchResult result = searcher.Search("IsInstalled=0 and IsHidden=0");
 
             Console.WriteLine("Found " + result.Updates.Count + " updates.");
 
@@ -49,7 +43,7 @@ namespace AutoUpdate_CLI.Classes.Update
                 }
                 else if (!exclusiveFlag && update.InstallationBehavior.Impact == InstallationImpact.iiRequiresExclusiveHandling)
                 {
-                    Console.WriteLine("This update requires exclusive handling. No others will be installed. The machine will reboot and rerun the program.");
+                    Console.WriteLine("This update requires exclusive handling. No others will be installed. The machine will reboot and continue update installation.");
                     System.Threading.Thread.Sleep(5000);
                     exclusiveFlag = true;
                 }

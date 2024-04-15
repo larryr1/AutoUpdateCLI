@@ -1,9 +1,8 @@
-﻿using AutoUpdate_CLI.Classes.Utility;
+﻿using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.SystemAbstract;
+using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
+using AutoUpdate_CLI.Classes.Update.Display;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WUApiLib;
 
 namespace AutoUpdate_CLI.Classes.Update
@@ -29,7 +28,6 @@ namespace AutoUpdate_CLI.Classes.Update
             // Analyze for unfinished updates
             for (int i = 0; i < job.Updates.Count; i++)
             {
-                IUpdate update = job.Updates[i];
                 IUpdateInstallationResult updateResult = job.GetProgress().GetUpdateResult(i);
                 if (updateResult.HResult == -2145116147)
                 {
@@ -37,7 +35,12 @@ namespace AutoUpdate_CLI.Classes.Update
                 }
                 if (updateResult.RebootRequired)
                 {
-                    Console.WriteLine("The system needs a reboot.");
+                    Console.WriteLine("The system needs a reboot. Configuring autologon.");
+                    AutoLogon.Enable("user", "user");
+                    LegalNotice.Disable();
+                    AutoRun.SetExecutableRunOnceKey();
+                    PostUpdateCheck.SetUnchecked();
+                    Power.Restart("The system is restarting in 10 seconds to apply newly-installed updates.");
                 }
             }
         }

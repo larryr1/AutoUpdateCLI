@@ -1,7 +1,9 @@
-﻿using System;
+﻿using AutoUpdate_CLI.Classes.Utility;
+using AutoUpdate_CLI.Classes.Utility.Progress;
+using System;
 using WUApiLib;
 
-namespace AutoUpdate_CLI.Classes.Utility
+namespace AutoUpdate_CLI.Classes.Update.Display
 {
     internal class InstallProgressDisplay : IInstallationProgressChangedCallback, IInstallationCompletedCallback
     {
@@ -22,9 +24,9 @@ namespace AutoUpdate_CLI.Classes.Utility
 
 
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Update Install Progress: " + StaticProgressBar.Generate(updatePercentComplete, 20, '|'));
+            Console.WriteLine("Update Install Progress: " + ProgressTools.GenerateProgressBar(updatePercentComplete, 20, '|'));
             Console.WriteLine();
-            Console.WriteLine("Job Download Progress: " + StaticProgressBar.Generate(jobPercentComplete, 20, '|'));
+            Console.WriteLine("Job Download Progress: " + ProgressTools.GenerateProgressBar(jobPercentComplete, 20, '|'));
         }
 
         void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
@@ -32,17 +34,12 @@ namespace AutoUpdate_CLI.Classes.Utility
             Console.WriteLine("Installation completed.");
         }
 
-        private static string FormatBytes(decimal bytes)
+        private void ShowProgress(IInstallationJob job)
         {
-            string[] Suffix = { "B", "KB", "MB", "GB", "TB" };
-            int i;
-            decimal dblSByte = bytes;
-            for (i = 0; i < Suffix.Length && bytes >= 1024; i++, bytes /= 1024)
-            {
-                dblSByte = bytes / 1024;
-            }
-
-            return string.Format("{0:0.##} {1}", dblSByte, Suffix[i]);
+            IInstallationProgress progress = job.GetProgress();
+            Console.WriteLine("--[ Installation Job ]---------------------------------------------");
+            ConsoleTools.WritePair("Update", StringTools.TruncateString(job.Updates[0].Title, 40));
+            ConsoleTools.WritePair("Percent Complete", progress.PercentComplete.ToString() + "%");
         }
     }
 }

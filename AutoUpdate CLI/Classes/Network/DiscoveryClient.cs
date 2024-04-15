@@ -11,7 +11,7 @@ namespace AutoUpdate_CLI.Classes.Network
     /// </summary>
     internal class DiscoveryClient
     {
-        private UdpClient client = new UdpClient(29493);
+        private readonly UdpClient client = new UdpClient(29493);
 
         /// <summary>
         /// Scan for advertisements from an AutoUpdate server and return its IPEndPoint.
@@ -78,16 +78,14 @@ namespace AutoUpdate_CLI.Classes.Network
                 return false;
             }
 
-            IPAddress address = null;
-            int port = 0;
 
-            if (!IPAddress.TryParse(args[1], out address))
+            if (!IPAddress.TryParse(args[1], out IPAddress address))
             {
                 Console.WriteLine("Invalid address sent. Payload: " + data);
                 return false;
             }
-            
-            if (!int.TryParse(args[2], out port))
+
+            if (!int.TryParse(args[2], out int port))
             {
                 Console.WriteLine("Invalid port number sent. Payload: " + data);
             }

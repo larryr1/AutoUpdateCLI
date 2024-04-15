@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading;
 
-namespace AutoUpdate_CLI.Classes.Utility
+namespace AutoUpdate_CLI.Classes.Utility.Progress
 {
 
     /// <summary>

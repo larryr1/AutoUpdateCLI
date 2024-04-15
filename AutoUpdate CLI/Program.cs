@@ -1,5 +1,7 @@
 ﻿using AutoUpdate_CLI.Classes.Network;
 using AutoUpdate_CLI.Classes.Network.API;
+using AutoUpdate_CLI.Classes.SystemAbstract;
+using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
 using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
@@ -9,9 +11,10 @@ using WUApiLib;
 
 namespace AutoUpdate_CLI
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        [STAThread]
+        public static void Execute(string[] args)
         {
             // Ensure Adminstrator
             bool isElevated;
@@ -31,8 +34,12 @@ namespace AutoUpdate_CLI
                 Environment.Exit(0);
             }
 
+            // Disable AutoLogon and restore Legal Notice ASAP incase something goes wrong.
+            AutoLogon.Disable();
+            LegalNotice.Enable();
+
             // Setup
-            PreventSleep.DisableSleep();
+            SleepPrevention.DisableSleep();
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("SCPA AutoUpdate CLI");
@@ -40,7 +47,7 @@ namespace AutoUpdate_CLI
             Console.WriteLine();
 
             // Find config server
-            Console.WriteLine("Searching for configuration server... (10 seconds max)");
+            Console.WriteLine("Searching for configuration server... (timeout after 10 seconds)");
             IPEndPoint serverEndPoint = new DiscoveryClient().DiscoverServer(10);
             if (serverEndPoint == null)
             {
@@ -50,19 +57,22 @@ namespace AutoUpdate_CLI
             }
 
             // Create api configuration
-            ClientConfiguration apiConfig = new ClientConfiguration();
-            apiConfig.serverEndpoint = serverEndPoint;
-            apiConfig.clientIdentifier = Environment.MachineName;
-            apiConfig.clientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            ClientConfiguration apiConfig = new ClientConfiguration
+            {
+                ServerEndpoint = serverEndPoint,
+                ClientIdentifier = Environment.MachineName,
+                ClientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName
+            };
 
-            Console.ReadLine();
             APIClient apiClient = new APIClient(apiConfig);
 
             Console.WriteLine("Searching for available updates.");
 
             // Create the update session
-            UpdateSession session = new UpdateSession();
-            session.ClientApplicationID = "com.github.larryr1.AutoUpdate";
+            UpdateSession session = new UpdateSession
+            {
+                ClientApplicationID = "com.github.larryr1.AutoUpdate"
+            };
 
             // Create searcher.
             SearchManager searchManager = new SearchManager();
@@ -79,6 +89,7 @@ namespace AutoUpdate_CLI
             else
             {
                 Console.WriteLine("There are no updates to download.");
+                System.Threading.Thread.Sleep(3000);
             }
 
             if (installTarget.Count > 0)
@@ -89,11 +100,33 @@ namespace AutoUpdate_CLI
             else
             {
                 Console.WriteLine("There are no updates to install.");
+                System.Threading.Thread.Sleep(3000);
+            }
+
+            if (PostUpdateCheck.GetChecked())
+            {
+                Console.WriteLine("Cycle finished. Deleting registry keys...");
+                AutoLogon.Disable();
+                LegalNotice.Enable();
+                RegistryController.DeleteApplicationKey();
+                Console.WriteLine("Updates finished. Shutting down system.");
+                Power.Shutdown("Updates are finished. The system will shut down in 10 seconds.");
+                System.Threading.Thread.Sleep(120000);
+
+            } else
+            {
+                PostUpdateCheck.SetChecked();
+                AutoLogon.Enable("user", "user");
+                LegalNotice.Disable();
+                AutoRun.SetExecutableRunOnceKey();
+                Console.WriteLine("Restarting the system for the post-update check.");
+                Power.Restart("The machine is restarting in 10 seconds to complete updates.");
+                System.Threading.Thread.Sleep(120000);
             }
 
             Console.WriteLine("Done! Press enter to exit.");
             Console.ReadLine();
-            PreventSleep.AllowSleep();
+            SleepPrevention.AllowSleep();
         }
     }
 }
