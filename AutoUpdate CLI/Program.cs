@@ -54,6 +54,10 @@ namespace AutoUpdate_CLI
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("A configuration server was not broadcasted. Proceeding with default configuration.");
                 Console.ForegroundColor = ConsoleColor.Cyan;
+            } else
+            {
+                Console.ForegroundColor = ConsoleColor.Green; Console.WriteLine("Received broadcast.");
+                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine("Contacting configuration server at " + serverEndPoint.ToString());
             }
 
             // Create api configuration

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -11,7 +12,12 @@ namespace AutoUpdate_CLI.Classes.Network
     /// </summary>
     internal class DiscoveryClient
     {
-        private readonly UdpClient client = new UdpClient(29493);
+        private UdpClient client;
+
+        public DiscoveryClient()
+        {
+            client = new UdpClient(29463);
+        }
 
         /// <summary>
         /// Scan for advertisements from an AutoUpdate server and return its IPEndPoint.
@@ -26,6 +32,7 @@ namespace AutoUpdate_CLI.Classes.Network
 
             if (!successful)
             {
+                Debug.WriteLine("Cancelling the token.");
                 cts.Cancel();
                 return null;
             }
@@ -43,16 +50,13 @@ namespace AutoUpdate_CLI.Classes.Network
 
             while (serverEndpoint == null)
             {
-                String data = client.Receive(ref serverEndpoint).ToString();
+                String data = System.Text.Encoding.ASCII.GetString(client.Receive(ref serverEndpoint));
                 
 
                 if (TryParseDatagram(data, ref serverEndpoint))
                 {
-                    serverEndpoint = null;
-                    continue;
+                    return serverEndpoint;
                 }
-
-                return serverEndpoint;
             }
 
             return null;
