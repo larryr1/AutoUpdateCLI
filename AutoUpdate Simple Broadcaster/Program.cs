@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AutoUpdate_Simple_Broadcaster
 {
@@ -11,7 +13,7 @@ namespace AutoUpdate_Simple_Broadcaster
         {
             Console.WriteLine("AutoUpdate Simple Broadcaster");
 
-            IPAddress? address = null;
+            IPAddress address = null;
             while (address == null)
             {
                 Console.WriteLine("Enter the configuration server IP address.");
