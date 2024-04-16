@@ -7,6 +7,7 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
     /// </summary>
     internal class LegalNotice
     {
+        private static readonly string NoticeSubkeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System";
         /// <summary>
         /// Stores the legal notice's caption and text and disables it.
         /// </summary>
@@ -21,7 +22,7 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
                 return;
             }
 
-            RegistryKey alk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
+            RegistryKey alk = Registry.LocalMachine.OpenSubKey(NoticeSubkeyPath, true);
 
             // Ensure source caption values exist
             RegistryController.EnsureValueExists(alk, "LegalNoticeCaption", "", RegistryValueKind.String);
@@ -55,7 +56,7 @@ namespace AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract
                 ak.Close();
                 return;
             }
-            RegistryKey alk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
+            RegistryKey alk = Registry.LocalMachine.OpenSubKey(NoticeSubkeyPath, true);
 
             // Ensure source caption values exist
             RegistryController.EnsureValueExists(ak, "StoredLegalCaption", "", RegistryValueKind.String);
