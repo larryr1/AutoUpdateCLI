@@ -52,19 +52,22 @@ namespace AutoUpdate_Simple_Broadcaster
             Console.WriteLine("Press CTRL+C at any time to stop.");
 
             UdpClient client = new UdpClient();
+            client.EnableBroadcast = true;
             client.Client.Bind(new IPEndPoint(IPAddress.Any, port));
 
-            byte[] payload = Encoding.UTF8.GetBytes(dataString);
+            byte[] payload = Encoding.ASCII.GetBytes(dataString);
+
+            Console.WriteLine("Broadcast adddress is " + IPAddress.Broadcast.ToString());
 
             Task task = Task.Run(() =>
             {
                 while (true)
                 {
-                    client.Send(payload, payload.Length, "255.255.255.255", 29463);
+                    client.Send(payload, payload.Length, new IPEndPoint(IPAddress.Broadcast, 29463));
                     Console.WriteLine("Broadcasted.");
-                    Thread.Sleep(5000);
+                    Thread.Sleep(1000);
                 }
-            });
+            }); 
 
             task.Wait();
 
