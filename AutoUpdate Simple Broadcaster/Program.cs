@@ -48,6 +48,21 @@ namespace AutoUpdate_Simple_Broadcaster
 
             Console.WriteLine("Using port number " + port.ToString());
 
+            IPAddress broadcast = null;
+            while (broadcast == null)
+            {
+                Console.WriteLine("Enter the broadcast address (SCPA is 10.16.207.255).");
+                try
+                {
+                    broadcast = IPAddress.Parse(Console.ReadLine());
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("That is not a valid IP address.");
+                    broadcast = null;
+                }
+            }
+
             string dataString = $"AUADVERTISE,{address},{port}";
 
             Console.WriteLine($"Broadcasting the following string over UDP on port 29463: \"{dataString}\"");
@@ -59,13 +74,12 @@ namespace AutoUpdate_Simple_Broadcaster
 
             byte[] payload = Encoding.ASCII.GetBytes(dataString);
 
-            Console.WriteLine("Broadcast adddress is " + IPAddress.Broadcast.ToString());
-
             Task task = Task.Run(() =>
             {
                 while (true)
                 {
-                    client.Send(payload, payload.Length, new IPEndPoint(IPAddress.Broadcast, 29463));
+                    //client.Send(payload, payload.Length, new IPEndPoint(IPAddress.Broadcast, 29463));
+                    client.Send(payload, payload.Length, new IPEndPoint(broadcast, 29463));
                     Console.WriteLine("Broadcasted.");
                     Thread.Sleep(1000);
                 }
