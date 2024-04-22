@@ -5,7 +5,9 @@ using AutoUpdate_CLI.Classes.SystemAbstract.RegistryAbstract;
 using AutoUpdate_CLI.Classes.Update;
 using AutoUpdate_CLI.Classes.Utility;
 using System;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Security.Principal;
 using WUApiLib;
 
@@ -62,17 +64,29 @@ namespace AutoUpdate_CLI
             Console.ForegroundColor = ConsoleColor.Green; Console.WriteLine("Received broadcast.");
             Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine("Contacting configuration server at " + serverEndPoint.ToString());
 
+            // Start obtaining values for API configuration
+            string mac = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .Select(nic => nic.GetPhysicalAddress().ToString())
+                .First();
+
+            string clientDomain = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            string clientHostname = Environment.MachineName;
+
             // Create api configuration
             ClientConfiguration apiConfig = new ClientConfiguration
             {
                 ServerEndpoint = serverEndPoint,
-                ClientIdentifier = Environment.MachineName,
-                ClientDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName
+                ClientIdentifier = mac,
+                ClientDomain = clientDomain,
+                ClientHostname = clientHostname
             };
 
-            APIClient apiClient = new APIClient(apiConfig);
+            APIClient.InitializeClient(apiConfig);
+            APIClient.RegisterClient();
 
             Console.WriteLine("Searching for available updates.");
+            APIClient.SetPhase(APIClient.ApplicationPhase.SCAN);
 
             // Create the update session
             UpdateSession session = new UpdateSession
@@ -89,6 +103,14 @@ namespace AutoUpdate_CLI
             
             if (downloadTarget.Count > 0)
             {
+                APIClient.SetPhase(APIClient.ApplicationPhase.DOWNLOAD);
+                IUpdate[] updates = { };
+                for (int i = 0; i < downloadTarget.Count; i++)
+                {
+                    updates.Append(downloadTarget[i]);
+                }
+                APIClient.SetUpdates(updates);
+
                 DownloadManager downloadManager = new DownloadManager();
                 downloadManager.Download(session, downloadTarget);
             }
@@ -100,6 +122,13 @@ namespace AutoUpdate_CLI
 
             if (installTarget.Count > 0)
             {
+                APIClient.SetPhase(APIClient.ApplicationPhase.INSTALL);
+                IUpdate[] updates = { };
+                for (int i = 0; i < installTarget.Count; i++)
+                {
+                    updates.Append(installTarget[i]);
+                }
+                APIClient.SetUpdates(updates);
                 InstallManager installManager = new InstallManager();
                 installManager.Install(session, installTarget);
             }
@@ -115,13 +144,17 @@ namespace AutoUpdate_CLI
                 AutoLogon.Disable();
                 LegalNotice.Enable();
                 RegistryController.DeleteApplicationKey();
-                Power.Shutdown("Updates are finished. The system will shut down in 10 seconds.");
+                APIClient.SetPhase(APIClient.ApplicationPhase.COMPLETE);
+                //Power.Shutdown("Updates are finished. The system will shut down in 10 seconds.");
+                Power.Restart("The machine is restarting to log in to the testing account.");
+                AutoLogon.Enable("fsa@testing", "student", "testing");
                 System.Threading.Thread.Sleep(120000);
 
             } else
             {
                 PostUpdateCheck.SetChecked();
-                AutoLogon.Enable("user", "usre");
+                APIClient.SetPhase(APIClient.ApplicationPhase.CHECK);
+                AutoLogon.Enable("sa-admin", "?");
                 LegalNotice.Disable();
                 AutoRun.SetExecutableRunOnceKey();
                 Console.WriteLine("Restarting the system for the post-update check.");

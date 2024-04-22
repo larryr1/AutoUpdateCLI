@@ -6,6 +6,7 @@
     <RootNamespace>AutoUpdate_CLI</RootNamespace>
     <PublishSingleFile>true</PublishSingleFile>
 	<PublishTrimmed>true</PublishTrimmed>
+	<SignAssembly>False</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>

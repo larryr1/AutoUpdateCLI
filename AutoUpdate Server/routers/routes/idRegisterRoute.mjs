@@ -11,7 +11,11 @@ export default (req, res) => {
     }
 
     console.log("Creating client with ID " + req.params.id);
-    db.insert({ clientId: id });
+    db.insert({
+      clientId: id,
+      clientHostname: req.query.clientHostname,
+      clientDomain: req.query.clientDomain,
+    });
     res.status(201).json({success: true});
   });
 }

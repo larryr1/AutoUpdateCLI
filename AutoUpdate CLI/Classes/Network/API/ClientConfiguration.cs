@@ -7,7 +7,7 @@ namespace AutoUpdate_CLI.Classes.Network.API
         private IPEndPoint _serverEndPoint;
         private string _clientIdentifier;
         private string _clientDomain;
-        private string _completionBehavior;
+        private string _clientHostname;
 
         public IPEndPoint ServerEndpoint
         {
@@ -27,10 +27,10 @@ namespace AutoUpdate_CLI.Classes.Network.API
             set { _clientDomain = value; }
         }
 
-        public string CompletionBehavior
+        public string ClientHostname
         {
-            get { return _completionBehavior; }
-            set { _completionBehavior = value; }
+            get { return _clientHostname; }
+            set { _clientHostname = value; }
         }
 
 
