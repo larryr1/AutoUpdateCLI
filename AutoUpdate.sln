@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoUpdate CLI", "AutoUpdate CLI\AutoUpdate CLI.csproj", "{A56628D6-2A9A-4EFD-97B1-5EAAABF54592}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoUpdate Simple Broadcaster", "AutoUpdate Simple Broadcaster\AutoUpdate Simple Broadcaster.csproj", "{3249FC5F-F013-4E74-9C2D-3E11D687B86E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoUpdate Simple Broadcaster", "AutoUpdate Simple Broadcaster\AutoUpdate Simple Broadcaster.csproj", "{3249FC5F-F013-4E74-9C2D-3E11D687B86E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

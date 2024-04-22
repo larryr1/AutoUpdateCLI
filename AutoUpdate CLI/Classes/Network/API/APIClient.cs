@@ -13,9 +13,9 @@ namespace AutoUpdate_CLI.Classes.Network.API
 
         internal class REPORT_URLS
         {
-            public static string REGISTER = "/api/client/register";
-            public static string STATUS_UPDATE = "/api/client/update_phase";
-            public static string NOTIFY_ = "/api/client/machine_state";
+            public static string REGISTER = "/api/client/{id}/register";
+            public static string STATUS_UPDATE = "/api/client/{id}/update_phase";
+            public static string NOTIFY_ = "/api/client/{id}/machine_state";
         }
 
         public APIClient(ClientConfiguration configuration)

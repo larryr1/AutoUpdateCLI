@@ -17,6 +17,7 @@ namespace AutoUpdate_CLI.Classes.Network
         public DiscoveryClient()
         {
             client = new UdpClient(29463);
+            client.EnableBroadcast = true;
         }
 
         /// <summary>
